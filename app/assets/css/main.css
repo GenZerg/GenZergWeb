@@ -1,0 +1,71 @@
+:root {
+  --bg: oklch(0.97 0.01 145);
+  --surface: oklch(0.93 0.02 145);
+  --ink: oklch(0.22 0.045 145);
+  --muted: oklch(0.42 0.03 145);
+  --primary: oklch(0.52 0.16 145);
+  --accent: oklch(0.72 0.17 95);
+  --sky: oklch(0.82 0.06 230);
+  --font-display: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "Chakra Petch", "Segoe UI", sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: clamp(3rem, 8vw, 6rem);
+  --z-base: 0;
+  --z-content: 2;
+  --z-nav: 10;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
