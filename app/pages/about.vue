@@ -7,6 +7,8 @@ useSeoMeta({
 
 <template>
   <main class="about">
+    <div class="about__glow" aria-hidden="true" />
+
     <header class="about__top">
       <NuxtLink class="about__brand" to="/">GenZerg</NuxtLink>
       <NuxtLink class="about__back" to="/">Back to canopy</NuxtLink>
@@ -20,7 +22,7 @@ useSeoMeta({
         Playful, bold, curious. More like looking up through a forest than scrolling a pitch deck.
       </p>
       <p>
-        This chapter is just opening. Social proof, clips, and streams will take root here. Until then: move through the canopy, rustle the leaves, and come back for the next growth.
+        This chapter is just opening. Social proof, clips, and streams will take root here. Until then: wander the canopy, rustle the leaves, and come back for the next growth.
       </p>
       <p class="about__cta-row">
         <a
@@ -29,7 +31,7 @@ useSeoMeta({
           target="_blank"
           rel="noopener noreferrer"
         >Follow on social</a>
-        <NuxtLink class="btn btn--quiet" to="/">Return home</NuxtLink>
+        <NuxtLink class="btn btn--quiet" to="/#exhibit">Browse the grove</NuxtLink>
       </p>
     </article>
   </main>
@@ -37,14 +39,29 @@ useSeoMeta({
 
 <style scoped>
 .about {
+  position: relative;
   min-height: 100dvh;
   background:
     radial-gradient(ellipse 70% 50% at 80% 0%, oklch(0.72 0.12 145 / 0.25), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, oklch(0.85 0.1 95 / 0.18), transparent 55%),
     var(--bg);
   color: var(--ink);
+  overflow: clip;
+}
+
+.about__glow {
+  position: absolute;
+  inset: auto -10% 40% auto;
+  width: min(28rem, 70vw);
+  height: min(28rem, 70vw);
+  background: radial-gradient(circle, oklch(0.85 0.12 95 / 0.22), transparent 70%);
+  animation: drift 12s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .about__top {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -70,9 +87,12 @@ useSeoMeta({
 }
 
 .about__body {
+  position: relative;
+  z-index: 1;
   max-width: 38rem;
   margin: 0 auto;
   padding: var(--space-4) clamp(1.25rem, 4vw, 3rem) var(--space-5);
+  animation: rise 0.7s var(--ease-out) both;
 }
 
 .about__kicker {
@@ -98,7 +118,6 @@ useSeoMeta({
   color: var(--muted);
 }
 
-.about__body p:first-of-type + .about__title + p,
 .about__body .about__title + p {
   color: var(--ink);
   font-size: 1.125rem;
@@ -122,6 +141,7 @@ useSeoMeta({
   background: var(--primary);
   color: oklch(0.99 0.01 145);
   border: 2px solid oklch(0.38 0.12 145);
+  transition: filter 0.2s var(--ease-out), transform 0.2s var(--ease-spring);
 }
 
 .btn--quiet {
@@ -132,5 +152,37 @@ useSeoMeta({
 
 .btn:hover {
   filter: brightness(1.05);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-24px, 18px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about__body,
+  .about__glow {
+    animation: none;
+  }
 }
 </style>

@@ -24,10 +24,4 @@ export default defineNuxtConfig({
   },
 
   modules: ['nitro-cloudflare-dev'],
-
-  vite: {
-    optimizeDeps: {
-      include: ['three'],
-    },
-  },
 })
