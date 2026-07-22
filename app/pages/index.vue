@@ -2,11 +2,12 @@
 import type { WatchingResponse } from '../../shared/types/anilist'
 import type { FilmsResponse } from '../../shared/types/letterboxd'
 import type { MusicResponse } from '../../shared/types/lastfm'
+import type { ProfileResponse } from '../../shared/types/profile'
 import type { MusicActivityPoint, ShowcaseItem, ShowcaseZone } from '../../shared/types/showcase'
 
 useSeoMeta({
   title: 'GenZerg — Look up',
-  description: 'A living canopy showcase of GenZerg’s anime, films, and music.',
+  description: 'A living canopy showcase of GenZerg’s anime, films, music, and Steam roots from Thailand.',
   ogTitle: 'GenZerg',
   ogDescription: 'There’s a story here worth exploring.',
 })
@@ -17,6 +18,11 @@ const reducedMotion = ref(false)
 
 onMounted(() => {
   reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+})
+
+const { data: profile } = await useFetch<ProfileResponse>('/api/profile', {
+  lazy: true,
+  default: () => null,
 })
 
 const { data: watching } = await useFetch<WatchingResponse>('/api/watching', {
@@ -134,8 +140,9 @@ const counts = computed(() => ({
           <nav class="hero__nav" aria-label="Primary">
             <NuxtLink to="/about">Story</NuxtLink>
             <a href="https://anilist.co/user/GenZerg/" target="_blank" rel="noopener noreferrer">AniList</a>
-            <a href="https://letterboxd.com/genzerg/films/" target="_blank" rel="noopener noreferrer">Films</a>
+            <a href="https://letterboxd.com/genzerg/" target="_blank" rel="noopener noreferrer">Films</a>
             <a href="https://www.last.fm/user/GenZerg" target="_blank" rel="noopener noreferrer">Last.fm</a>
+            <a href="https://steamcommunity.com/id/GenZerG" target="_blank" rel="noopener noreferrer">Steam</a>
           </nav>
         </header>
 
@@ -160,6 +167,8 @@ const counts = computed(() => ({
       :activity="activity"
       :counts="counts"
     />
+
+    <ProfileRoots :profile="profile" />
   </div>
 </template>
 

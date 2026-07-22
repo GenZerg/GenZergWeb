@@ -11,6 +11,8 @@ export default defineNuxtConfig({
       lastfmUser: 'GenZerg',
       anilistUser: 'GenZerg',
       letterboxdUser: 'genzerg',
+      steamUser: 'GenZerG',
+      githubUser: 'GenZerg',
     },
   },
 

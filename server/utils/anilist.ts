@@ -1,4 +1,4 @@
-import type { AnilistWatchingEntry } from '../../shared/types/anilist'
+import type { AnilistProfile, AnilistWatchingEntry } from '../../shared/types/anilist'
 
 type AnilistMediaListResponse = {
   data?: {
@@ -24,6 +24,40 @@ type AnilistMediaListResponse = {
         }>
       }>
     }
+  }
+  errors?: Array<{ message: string }>
+}
+
+type AnilistUserResponse = {
+  data?: {
+    User?: {
+      id: number
+      name: string
+      siteUrl?: string | null
+      avatar?: { large?: string | null } | null
+      bannerImage?: string | null
+      statistics?: {
+        anime?: {
+          count?: number | null
+          meanScore?: number | null
+          minutesWatched?: number | null
+          episodesWatched?: number | null
+          genres?: Array<{ genre?: string | null; count?: number | null }> | null
+          statuses?: Array<{ status?: string | null; count?: number | null }> | null
+        } | null
+        manga?: { count?: number | null } | null
+      } | null
+      favourites?: {
+        anime?: {
+          nodes?: Array<{
+            id: number
+            siteUrl?: string | null
+            title?: { english?: string | null; romaji?: string | null } | null
+            coverImage?: { large?: string | null } | null
+          }> | null
+        } | null
+      } | null
+    } | null
   }
   errors?: Array<{ message: string }>
 }
@@ -55,17 +89,47 @@ const QUERY = `
   }
 `
 
-export async function fetchCurrentlyWatching(userName: string): Promise<AnilistWatchingEntry[]> {
-  const payload = await $fetch<AnilistMediaListResponse>('https://graphql.anilist.co', {
+const PROFILE_QUERY = `
+  query AnilistProfile($name: String!) {
+    User(name: $name) {
+      id
+      name
+      siteUrl
+      avatar { large }
+      bannerImage
+      statistics {
+        anime {
+          count
+          meanScore
+          minutesWatched
+          episodesWatched
+          genres { genre count }
+          statuses { status count }
+        }
+        manga { count }
+      }
+      favourites {
+        anime {
+          nodes {
+            id
+            siteUrl
+            title { english romaji }
+            coverImage { large }
+          }
+        }
+      }
+    }
+  }
+`
+
+async function anilistPost<T>(query: string, variables: Record<string, string>): Promise<T> {
+  const payload = await $fetch<T & { errors?: Array<{ message: string }> }>('https://graphql.anilist.co', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
-    body: {
-      query: QUERY,
-      variables: { userName },
-    },
+    body: { query, variables },
   })
 
   if (payload.errors?.length) {
@@ -74,6 +138,12 @@ export async function fetchCurrentlyWatching(userName: string): Promise<AnilistW
       statusMessage: payload.errors.map((e) => e.message).join('; ') || 'AniList GraphQL error',
     })
   }
+
+  return payload
+}
+
+export async function fetchCurrentlyWatching(userName: string): Promise<AnilistWatchingEntry[]> {
+  const payload = await anilistPost<AnilistMediaListResponse>(QUERY, { userName })
 
   const entries = payload.data?.MediaListCollection?.lists?.flatMap((list) => list.entries ?? []) ?? []
 
@@ -98,4 +168,49 @@ export async function fetchCurrentlyWatching(userName: string): Promise<AnilistW
         format: media.format ?? null,
       }
     })
+}
+
+export async function fetchAnilistProfile(userName: string): Promise<AnilistProfile> {
+  const payload = await anilistPost<AnilistUserResponse>(PROFILE_QUERY, { name: userName })
+  const user = payload.data?.User
+  if (!user) {
+    throw createError({ statusCode: 404, statusMessage: `AniList user ${userName} not found` })
+  }
+
+  const anime = user.statistics?.anime
+  const statusCount = (status: string) =>
+    anime?.statuses?.find((entry) => entry.status === status)?.count ?? 0
+
+  const genres = (anime?.genres ?? [])
+    .filter((entry): entry is { genre: string; count: number } => Boolean(entry.genre && entry.count != null))
+    .map((entry) => ({ genre: entry.genre, count: entry.count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8)
+
+  const favorites = (user.favourites?.anime?.nodes ?? []).map((node) => ({
+    id: node.id,
+    title: node.title?.english || node.title?.romaji || `Anime #${node.id}`,
+    cover: node.coverImage?.large ?? null,
+    url: node.siteUrl || `https://anilist.co/anime/${node.id}`,
+  }))
+
+  const minutes = anime?.minutesWatched ?? 0
+
+  return {
+    id: user.id,
+    name: user.name,
+    profileUrl: user.siteUrl || `https://anilist.co/user/${userName}/`,
+    avatar: user.avatar?.large ?? null,
+    banner: user.bannerImage ?? null,
+    animeCount: anime?.count ?? 0,
+    mangaCount: user.statistics?.manga?.count ?? 0,
+    meanScore: anime?.meanScore ?? 0,
+    daysWatched: Math.round((minutes / 60 / 24) * 10) / 10,
+    episodesWatched: anime?.episodesWatched ?? 0,
+    completed: statusCount('COMPLETED'),
+    current: statusCount('CURRENT'),
+    planning: statusCount('PLANNING'),
+    genres,
+    favorites,
+  }
 }

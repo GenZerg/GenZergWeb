@@ -67,6 +67,24 @@ async function fetchFilmsPage(page: number): Promise<string> {
   })
 }
 
+export async function fetchLetterboxdFilmCount(): Promise<number | null> {
+  try {
+    const html = await $fetch<string>(`https://letterboxd.com/${LETTERBOXD_USER}/`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; GenZergWeb/1.0; +https://github.com/genzerg)',
+        Accept: 'text/html,application/xhtml+xml',
+      },
+      responseType: 'text',
+    })
+    const match = html.match(/class="value">\s*([0-9,]+)\s*</)
+    if (!match?.[1]) return null
+    return Number(match[1].replace(/,/g, ''))
+  }
+  catch {
+    return null
+  }
+}
+
 export async function fetchLetterboxdFilms() {
   const profileUrl = `https://letterboxd.com/${LETTERBOXD_USER}/`
   const filmsUrl = `https://letterboxd.com/${LETTERBOXD_USER}/films/`
