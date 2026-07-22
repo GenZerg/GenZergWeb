@@ -138,6 +138,7 @@ const counts = computed(() => ({
       <div class="hero__frame">
         <header class="hero__top">
           <nav class="hero__nav" aria-label="Primary">
+            <NuxtLink to="/profile">Profile</NuxtLink>
             <NuxtLink to="/about">Story</NuxtLink>
             <a href="https://anilist.co/user/GenZerg/" target="_blank" rel="noopener noreferrer">AniList</a>
             <a href="https://letterboxd.com/genzerg/" target="_blank" rel="noopener noreferrer">Films</a>

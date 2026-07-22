@@ -64,7 +64,7 @@ The home page is a full-viewport canopy experience (CSS + pixel art — no WebGL
 - **Anime** from AniList (`/api/watching`)
 - **Film** from Letterboxd (`/api/films`) + TMDB posters
 - **Music** from Last.fm (`/api/music`) with weekly/monthly pulse
-- **Roots** from `/api/profile` — AniList stats/favorites, Letterboxd totals, Steam, GitHub, listening flavor
+- **Roots** + **Profile** (`/profile`, `/profile/anime|films|music|games|code`) from `/api/profile`
 
 Scroll into the grove, filter by zone, and open a panel for the source link.
 

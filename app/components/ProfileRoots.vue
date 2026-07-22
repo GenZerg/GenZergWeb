@@ -67,13 +67,13 @@ const maxGenre = computed(() =>
         </div>
 
         <div class="roots__block">
-          <h3>Find GenZerg</h3>
+          <h3>Browse by category</h3>
           <ul class="roots__links">
-            <li v-for="link in profile.links" :key="link.id">
-              <a :href="link.url" target="_blank" rel="noopener noreferrer">
-                <span class="roots__link-label">{{ link.label }}</span>
-                <span class="roots__link-detail">{{ link.detail }}</span>
-              </a>
+            <li v-for="category in profile.categories.filter((c) => c.id !== 'overview')" :key="category.id">
+              <NuxtLink :to="category.href">
+                <span class="roots__link-label">{{ category.label }}</span>
+                <span class="roots__link-detail">{{ category.blurb }}</span>
+              </NuxtLink>
             </li>
           </ul>
         </div>
@@ -274,13 +274,18 @@ const maxGenre = computed(() =>
   color: var(--muted);
 }
 
-.roots__links a {
+.roots__links a,
+.roots__links :deep(a) {
+  display: grid;
+  gap: 0.1rem;
   text-decoration: none;
   padding: 0.45rem 0;
   border-bottom: 1px solid oklch(0.35 0.05 145 / 0.12);
+  color: inherit;
 }
 
-.roots__links a:hover .roots__link-label {
+.roots__links a:hover .roots__link-label,
+.roots__links :deep(a:hover) .roots__link-label {
   color: var(--primary);
 }
 

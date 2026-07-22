@@ -24,7 +24,10 @@ const primaryLink = computed(() =>
 
     <header class="about__top">
       <NuxtLink class="about__brand" to="/">GenZerg</NuxtLink>
-      <NuxtLink class="about__back" to="/">Back to canopy</NuxtLink>
+      <nav class="about__nav">
+        <NuxtLink to="/profile">Profile</NuxtLink>
+        <NuxtLink class="about__back" to="/">Back to canopy</NuxtLink>
+      </nav>
     </header>
 
     <article class="about__body">
@@ -142,7 +145,20 @@ const primaryLink = computed(() =>
   color: var(--primary);
 }
 
-.about__back:hover {
+.about__nav {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+}
+
+.about__nav a {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--primary);
+}
+
+.about__back:hover,
+.about__nav a:hover {
   color: oklch(0.4 0.14 145);
 }
 
