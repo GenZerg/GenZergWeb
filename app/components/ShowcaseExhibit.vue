@@ -204,9 +204,29 @@ watch(
   content: "";
   position: absolute;
   inset: 0 0 auto;
-  height: 4.5rem;
-  background: linear-gradient(to bottom, oklch(0.14 0.05 145 / 0.35), transparent);
+  height: 5.5rem;
+  background: linear-gradient(to bottom, oklch(0.14 0.05 145 / 0.42), transparent);
   pointer-events: none;
+}
+
+.exhibit::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1.25rem;
+  background:
+    radial-gradient(ellipse 8px 10px at 8% 0, oklch(0.32 0.08 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 10px 12px at 18% 0, oklch(0.38 0.1 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 7px 9px at 29% 0, oklch(0.3 0.08 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 11px 13px at 42% 0, oklch(0.36 0.09 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 8px 10px at 55% 0, oklch(0.33 0.08 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 10px 12px at 68% 0, oklch(0.37 0.1 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 7px 9px at 80% 0, oklch(0.31 0.08 145) 0 55%, transparent 60%),
+    radial-gradient(ellipse 11px 13px at 93% 0, oklch(0.35 0.09 145) 0 55%, transparent 60%);
+  pointer-events: none;
+  opacity: 0.55;
 }
 
 .exhibit__head {

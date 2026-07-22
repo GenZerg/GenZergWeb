@@ -95,14 +95,24 @@ const showcaseItems = computed<ShowcaseItem[]>(() => {
     image: track.image,
   }))
 
-  return [...anime, ...movieItems, ...tracks]
+  // Weave kinds so "All" feels like one grove, not three stacks.
+  const woven: ShowcaseItem[] = []
+  const max = Math.max(anime.length, movieItems.length, tracks.length)
+  for (let i = 0; i < max; i++) {
+    if (anime[i]) woven.push(anime[i])
+    if (movieItems[i]) woven.push(movieItems[i])
+    if (tracks[i]) woven.push(tracks[i])
+  }
+  return woven
 })
 
 const activity = computed<MusicActivityPoint[]>(() => {
   const points = musicPeriod.value === 'weekly'
     ? (music.value?.weeklyActivity ?? [])
     : (music.value?.monthlyActivity ?? [])
-  return points.map((point) => ({ label: point.label, count: point.count }))
+  const mapped = points.map((point) => ({ label: point.label, count: point.count }))
+  if (!mapped.some((point) => point.count > 0)) return []
+  return mapped
 })
 
 const counts = computed(() => ({
@@ -212,6 +222,7 @@ const counts = computed(() => ({
 .hero__copy {
   align-self: end;
   max-width: 38rem;
+  padding-bottom: 0.25rem;
   animation: rise-in 0.9s var(--ease-out) both;
 }
 
