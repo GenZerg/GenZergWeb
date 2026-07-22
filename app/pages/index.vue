@@ -7,9 +7,9 @@ import type { MusicActivityPoint, ShowcaseItem, ShowcaseZone } from '../../share
 
 useSeoMeta({
   title: 'GenZerg — Look up',
-  description: 'A living canopy showcase of GenZerg’s anime, films, music, and Steam roots from Thailand.',
+  description: 'GenZerg’s anime, films, music, and Steam trail from Pathumthani.',
   ogTitle: 'GenZerg',
-  ogDescription: 'There’s a story here worth exploring.',
+  ogDescription: '652 anime. 506 films. 42k scrobbles. Steam since 2013.',
 })
 
 const activeZone = ref<ShowcaseZone>('all')
@@ -149,13 +149,13 @@ const counts = computed(() => ({
 
         <div class="hero__copy">
           <p class="hero__brand">GenZerg</p>
-          <h1>There’s a story here worth exploring.</h1>
+          <h1>652 anime. 506 films. Still scrolling.</h1>
           <p class="hero__support">
-            Look up through the canopy — anime, films, and music grow in one playful grove.
+            Pathumthani. Pixel canopy. The lists are the biography.
           </p>
           <div class="hero__cta">
-            <a class="cta cta--primary" href="#exhibit">Explore the grove</a>
-            <NuxtLink class="cta cta--ghost" to="/about">The story</NuxtLink>
+            <a class="cta cta--primary" href="#exhibit">See what’s on</a>
+            <NuxtLink class="cta cta--ghost" to="/profile">Open profile</NuxtLink>
           </div>
         </div>
       </div>

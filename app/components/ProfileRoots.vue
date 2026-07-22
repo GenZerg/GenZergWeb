@@ -8,14 +8,27 @@ const props = defineProps<{
 const maxGenre = computed(() =>
   Math.max(1, ...(props.profile?.genres.map((entry) => entry.count) ?? [1])),
 )
+
+const coverStrip = computed(() => {
+  const covers = [
+    ...(props.profile?.details.anime.favorites.map((item) => item.image) ?? []),
+    ...(props.profile?.details.films.recent.map((item) => item.image) ?? []),
+  ].filter(Boolean) as string[]
+  return [...new Set(covers)].slice(0, 6)
+})
 </script>
 
 <template>
   <section v-if="profile" class="roots" aria-labelledby="roots-title">
+    <div class="roots__banner" aria-hidden="true">
+      <img v-if="profile.banner" :src="profile.banner" alt="" decoding="async">
+      <div class="roots__banner-fade" />
+    </div>
+
     <div class="roots__inner">
       <div class="roots__intro">
-        <p class="roots__kicker">The roots</p>
-        <h2 id="roots-title">Who’s under the canopy</h2>
+        <p class="roots__kicker">Profile</p>
+        <h2 id="roots-title">The actual trail</h2>
         <p class="roots__lede">{{ profile.tagline }}</p>
         <p v-if="profile.location" class="roots__place">{{ profile.location }}</p>
 
@@ -26,11 +39,22 @@ const maxGenre = computed(() =>
             <span v-if="item.hint" class="roots__hint">{{ item.hint }}</span>
           </li>
         </ul>
+
+        <NuxtLink class="roots__cta" to="/profile">Full profile</NuxtLink>
       </div>
 
       <div class="roots__panels">
+        <div v-if="coverStrip.length" class="roots__block">
+          <h3>Covers</h3>
+          <ul class="roots__covers">
+            <li v-for="(src, index) in coverStrip" :key="`${src}-${index}`">
+              <img :src="src" alt="" loading="lazy" decoding="async">
+            </li>
+          </ul>
+        </div>
+
         <div v-if="profile.favorites.length" class="roots__block">
-          <h3>AniList favorites</h3>
+          <h3>Favorites</h3>
           <ul class="roots__favs">
             <li v-for="fav in profile.favorites" :key="fav.id">
               <a :href="fav.url" target="_blank" rel="noopener noreferrer">
@@ -42,9 +66,9 @@ const maxGenre = computed(() =>
         </div>
 
         <div v-if="profile.genres.length" class="roots__block">
-          <h3>Genre soil</h3>
+          <h3>Genres</h3>
           <ul class="roots__genres">
-            <li v-for="genre in profile.genres" :key="genre.genre">
+            <li v-for="genre in profile.genres.slice(0, 6)" :key="genre.genre">
               <span>{{ genre.genre }}</span>
               <span
                 class="roots__bar"
@@ -57,19 +81,12 @@ const maxGenre = computed(() =>
         </div>
 
         <div class="roots__block">
-          <h3>Listening flavor</h3>
-          <ul class="roots__listen">
-            <li v-for="artist in profile.listeningFlavor" :key="artist.name">
-              <strong>{{ artist.name }}</strong>
-              <span>{{ artist.detail }}</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="roots__block">
-          <h3>Browse by category</h3>
+          <h3>Categories</h3>
           <ul class="roots__links">
-            <li v-for="category in profile.categories.filter((c) => c.id !== 'overview')" :key="category.id">
+            <li
+              v-for="category in profile.categories.filter((c) => c.id !== 'overview')"
+              :key="category.id"
+            >
               <NuxtLink :to="category.href">
                 <span class="roots__link-label">{{ category.label }}</span>
                 <span class="roots__link-detail">{{ category.blurb }}</span>
@@ -84,14 +101,37 @@ const maxGenre = computed(() =>
 
 <style scoped>
 .roots {
+  position: relative;
   padding: clamp(2.5rem, 7vw, 4.5rem) clamp(1rem, 4vw, 2.5rem);
-  background:
-    radial-gradient(ellipse 60% 50% at 100% 0%, oklch(0.82 0.1 95 / 0.2), transparent 55%),
-    linear-gradient(180deg, oklch(0.97 0.015 145), oklch(0.93 0.025 145));
   color: var(--ink);
+  overflow: clip;
+  background: oklch(0.94 0.02 145);
+}
+
+.roots__banner {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 11rem;
+  overflow: hidden;
+}
+
+.roots__banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  opacity: 0.35;
+}
+
+.roots__banner-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, oklch(0.94 0.02 145));
 }
 
 .roots__inner {
+  position: relative;
+  z-index: 1;
   max-width: 72rem;
   margin: 0 auto;
   display: grid;
@@ -136,7 +176,7 @@ const maxGenre = computed(() =>
 
 .roots__highlights {
   list-style: none;
-  margin: 0;
+  margin: 0 0 1.1rem;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -168,6 +208,19 @@ const maxGenre = computed(() =>
   color: var(--muted);
 }
 
+.roots__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 0.3rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--primary);
+  color: oklch(0.99 0.01 145);
+  border: 2px solid oklch(0.38 0.12 145);
+}
+
 .roots__panels {
   display: grid;
   gap: 1.25rem;
@@ -184,6 +237,23 @@ const maxGenre = computed(() =>
   font-family: var(--font-display);
   font-size: 1.05rem;
   color: var(--primary);
+}
+
+.roots__covers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.35rem;
+}
+
+.roots__covers img {
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0.2rem;
+  background: oklch(0.28 0.05 145);
 }
 
 .roots__favs {
@@ -218,7 +288,6 @@ const maxGenre = computed(() =>
 }
 
 .roots__genres,
-.roots__listen,
 .roots__links {
   list-style: none;
   margin: 0;
@@ -258,23 +327,6 @@ const maxGenre = computed(() =>
   color: var(--muted);
 }
 
-.roots__listen li,
-.roots__links a {
-  display: grid;
-  gap: 0.1rem;
-}
-
-.roots__listen strong {
-  font-family: var(--font-display);
-}
-
-.roots__listen span,
-.roots__link-detail {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.roots__links a,
 .roots__links :deep(a) {
   display: grid;
   gap: 0.1rem;
@@ -284,12 +336,16 @@ const maxGenre = computed(() =>
   color: inherit;
 }
 
-.roots__links a:hover .roots__link-label,
 .roots__links :deep(a:hover) .roots__link-label {
   color: var(--primary);
 }
 
 .roots__link-label {
   font-weight: 700;
+}
+
+.roots__link-detail {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 </style>

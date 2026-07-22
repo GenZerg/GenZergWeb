@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { ProfileMediaItem, ProfileStat } from '../../shared/types/profile'
 
-defineProps<{
+withDefaults(defineProps<{
   title: string
   stats?: ProfileStat[]
   items?: ProfileMediaItem[]
   empty?: string
-}>()
+  large?: boolean
+}>(), {
+  large: false,
+})
 </script>
 
 <template>
@@ -22,17 +25,17 @@ defineProps<{
       </ul>
     </div>
 
-    <ul v-if="items?.length" class="block__grid">
+    <ul v-if="items?.length" class="block__grid" :class="{ 'block__grid--large': large }">
       <li v-for="item in items" :key="item.id">
         <a :href="item.url" target="_blank" rel="noopener noreferrer">
           <span class="block__media">
             <img v-if="item.image" :src="item.image" :alt="item.title" loading="lazy" decoding="async">
             <span v-else class="block__fallback" aria-hidden="true">{{ item.subtitle || '·' }}</span>
+            <span v-if="item.meta" class="block__badge">{{ item.meta }}</span>
           </span>
-          <span class="block__meta">
+          <span class="block__copy">
             <span v-if="item.subtitle" class="block__sub">{{ item.subtitle }}</span>
             <span class="block__title">{{ item.title }}</span>
-            <span v-if="item.meta" class="block__hint">{{ item.meta }}</span>
           </span>
         </a>
       </li>
@@ -56,7 +59,8 @@ defineProps<{
 .block__head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  letter-spacing: -0.02em;
 }
 
 .block__stats {
@@ -64,25 +68,25 @@ defineProps<{
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(6.8rem, 1fr));
   gap: 0.65rem;
 }
 
 .block__stats li {
   display: grid;
-  gap: 0.1rem;
+  gap: 0.12rem;
 }
 
 .block__stats strong {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   line-height: 1;
 }
 
 .block__stats span {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--primary);
 }
@@ -98,28 +102,41 @@ defineProps<{
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(8.2rem, 1fr));
   gap: 0.85rem;
+}
+
+.block__grid--large {
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 }
 
 .block__grid a {
   display: grid;
   gap: 0.45rem;
   text-decoration: none;
+  color: inherit;
 }
 
 .block__media {
+  position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: 0.25rem;
+  border-radius: 0.28rem;
   background: oklch(0.28 0.05 145);
+  box-shadow: 0 10px 0 oklch(0.28 0.05 145 / 0.1);
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-out);
 }
 
 .block__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.35s var(--ease-out);
+  transition: transform 0.45s var(--ease-out);
+}
+
+.block__grid a:hover .block__media {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 0 oklch(0.28 0.05 145 / 0.12);
 }
 
 .block__grid a:hover .block__media img {
@@ -137,18 +154,26 @@ defineProps<{
   padding: 0.5rem;
 }
 
-.block__meta {
+.block__badge {
+  position: absolute;
+  left: 0.4rem;
+  bottom: 0.4rem;
+  padding: 0.18rem 0.4rem;
+  border-radius: 0.2rem;
+  background: oklch(0.16 0.04 145 / 0.82);
+  color: oklch(0.98 0.01 145);
+  font-size: 0.72rem;
+  font-weight: 800;
+  backdrop-filter: blur(4px);
+}
+
+.block__copy {
   display: grid;
   gap: 0.12rem;
 }
 
-.block__sub,
-.block__hint {
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
 .block__sub {
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;

@@ -56,10 +56,10 @@ watch(
   <section id="exhibit" class="exhibit" aria-labelledby="exhibit-title">
     <div class="exhibit__head">
       <div>
-        <p class="exhibit__kicker">Living exhibit</p>
-        <h2 id="exhibit-title">What’s rustling in the canopy</h2>
+        <p class="exhibit__kicker">Now playing</p>
+        <h2 id="exhibit-title">Currently in rotation</h2>
         <p class="exhibit__lede">
-          Anime on AniList, films on Letterboxd, music on Last.fm — same grove, different leaves.
+          Watching on AniList, logged on Letterboxd, scrobbled on Last.fm.
         </p>
       </div>
 
@@ -156,7 +156,7 @@ watch(
         </button>
 
         <p v-if="filtered.length === 0" class="exhibit__empty">
-          Nothing in this branch yet — check back after the next growth.
+          Nothing here yet.
         </p>
       </div>
     </div>
@@ -167,7 +167,7 @@ watch(
         <h3>{{ selected.title }}</h3>
         <p>{{ selected.subtitle }}</p>
         <p class="focus__meta">{{ selected.meta }}</p>
-        <button type="button" class="focus__open" @click="openSelected">Open source</button>
+        <button type="button" class="focus__open" @click="openSelected">Open</button>
       </aside>
 
       <div v-if="activity.length" class="activity" aria-label="Listening activity">

@@ -3,7 +3,7 @@ import type { ProfileResponse } from '../../../shared/types/profile'
 
 useSeoMeta({
   title: 'Profile — GenZerg',
-  description: 'GenZerg profile overview across anime, films, music, games, and code.',
+  description: 'GenZerg profile: anime, films, music, Steam, and code from Pathumthani.',
 })
 
 const { data: profile } = await useFetch<ProfileResponse>('/api/profile', {
@@ -14,28 +14,59 @@ const { data: profile } = await useFetch<ProfileResponse>('/api/profile', {
 const maxGenre = computed(() =>
   Math.max(1, ...(profile.value?.genres.map((entry) => entry.count) ?? [1])),
 )
+
+const mosaic = computed(() => {
+  const covers = [
+    ...(profile.value?.details.anime.favorites.map((item) => item.image) ?? []),
+    ...(profile.value?.details.films.topRated.map((item) => item.image) ?? []),
+    ...(profile.value?.details.anime.topRated.map((item) => item.image) ?? []),
+  ].filter(Boolean) as string[]
+  return [...new Set(covers)].slice(0, 8)
+})
 </script>
 
 <template>
   <main class="page">
     <ProfileShell v-if="profile" :profile="profile" active="overview">
-      <ProfileBlock title="At a glance" :stats="profile.highlights.map((h) => ({ label: h.label, value: h.value, hint: h.hint }))" />
+      <section v-if="mosaic.length" class="mosaic" aria-label="Cover mosaic">
+        <img
+          v-for="(src, index) in mosaic"
+          :key="`${src}-${index}`"
+          :src="src"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        >
+      </section>
+
+      <ProfileBlock
+        title="Snapshot"
+        :stats="profile.highlights.map((h) => ({ label: h.label, value: h.value, hint: h.hint }))"
+      />
 
       <div class="overview">
         <section>
-          <h2>Categories</h2>
+          <h2>Jump in</h2>
           <ul class="overview__cats">
-            <li v-for="category in profile.categories.filter((c) => c.id !== 'overview')" :key="category.id">
+            <li
+              v-for="category in profile.categories.filter((c) => c.id !== 'overview')"
+              :key="category.id"
+            >
               <NuxtLink :to="category.href">
-                <strong>{{ category.label }}</strong>
-                <span>{{ category.blurb }}</span>
+                <span class="overview__cover">
+                  <img v-if="category.cover" :src="category.cover" :alt="category.label" loading="lazy">
+                </span>
+                <span>
+                  <strong>{{ category.label }}</strong>
+                  <span>{{ category.blurb }}</span>
+                </span>
               </NuxtLink>
             </li>
           </ul>
         </section>
 
         <section v-if="profile.genres.length">
-          <h2>Genre soil</h2>
+          <h2>Genres</h2>
           <ul class="overview__genres">
             <li v-for="genre in profile.genres" :key="genre.genre">
               <span>{{ genre.genre }}</span>
@@ -47,12 +78,13 @@ const maxGenre = computed(() =>
       </div>
 
       <ProfileBlock
-        title="AniList favorites"
+        title="Favorites"
         :items="profile.details.anime.favorites"
-        empty="Favorites loading…"
+        empty="No favorites yet."
+        large
       />
 
-      <ProfileBlock title="Find GenZerg">
+      <ProfileBlock title="Elsewhere">
         <ul class="overview__links">
           <li v-for="link in profile.links" :key="link.id">
             <a :href="link.url" target="_blank" rel="noopener noreferrer">
@@ -64,17 +96,14 @@ const maxGenre = computed(() =>
       </ProfileBlock>
     </ProfileShell>
 
-    <p v-else class="page__loading">Gathering the canopy…</p>
+    <p v-else class="page__loading">Loading profile…</p>
   </main>
 </template>
 
 <style scoped>
 .page {
   min-height: 100dvh;
-  background:
-    radial-gradient(ellipse 70% 40% at 90% 0%, oklch(0.78 0.1 145 / 0.2), transparent 55%),
-    radial-gradient(ellipse 50% 35% at 0% 30%, oklch(0.88 0.1 95 / 0.16), transparent 50%),
-    var(--bg);
+  background: var(--bg);
   color: var(--ink);
 }
 
@@ -85,6 +114,32 @@ const maxGenre = computed(() =>
   color: var(--muted);
 }
 
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.35rem;
+  margin: 0 0 1.5rem;
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+
+.mosaic img {
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  object-fit: cover;
+  background: oklch(0.28 0.05 145);
+}
+
+@media (max-width: 720px) {
+  .mosaic {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mosaic img:nth-child(n + 5) {
+    display: none;
+  }
+}
+
 .overview {
   display: grid;
   gap: 1.5rem;
@@ -93,7 +148,7 @@ const maxGenre = computed(() =>
 
 @media (min-width: 900px) {
   .overview {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1.15fr 0.85fr;
   }
 }
 
@@ -110,30 +165,48 @@ const maxGenre = computed(() =>
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .overview__cats a {
   display: grid;
-  gap: 0.2rem;
-  padding: 0.75rem 0.85rem;
-  border: 2px solid oklch(0.35 0.06 145 / 0.18);
+  grid-template-columns: 3.4rem 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.45rem;
+  border: 2px solid oklch(0.35 0.06 145 / 0.16);
   border-radius: 0.35rem;
   text-decoration: none;
-  background: oklch(1 0.01 145 / 0.55);
+  background: oklch(1 0.01 145 / 0.5);
 }
 
 .overview__cats a:hover {
   border-color: var(--primary);
 }
 
-.overview__cats strong {
-  font-family: var(--font-display);
+.overview__cover {
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 0.2rem;
+  background: oklch(0.28 0.05 145);
 }
 
-.overview__cats span {
+.overview__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overview__cats strong {
+  display: block;
+  font-family: var(--font-display);
+  margin-bottom: 0.15rem;
+}
+
+.overview__cats a > span:last-child > span {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .overview__genres li {

@@ -3,14 +3,14 @@ import type { ProfileCategoryMeta, ProfileMediaItem, ProfileResponse } from '../
 const HANDLE = 'GenZerg'
 
 const LISTENING_ARTISTS = [
-  { name: 'ONE OK ROCK', detail: 'Top rotation', plays: 186 },
-  { name: 'Michael Jackson', detail: 'Always in the mix', plays: 165 },
-  { name: 'Pierce the Veil', detail: 'So Far So Fake on loop', plays: 76 },
-  { name: 'Yorushika', detail: 'JP indie favorite', plays: 38 },
-  { name: 'ZUTOMAYO', detail: 'Late-night listens', plays: 38 },
-  { name: 'Sakurazaka46', detail: 'Recent scrobbles', plays: 37 },
-  { name: 'Isekaijoucho', detail: 'Cover live sessions', plays: 36 },
-  { name: 'Olivia Rodrigo', detail: 'Pop spike', plays: 31 },
+  { name: 'ONE OK ROCK', detail: '186 plays · last 30 days', plays: 186 },
+  { name: 'Michael Jackson', detail: '165 plays · last 30 days', plays: 165 },
+  { name: 'Pierce the Veil', detail: 'So Far So Fake still winning', plays: 76 },
+  { name: 'Yorushika', detail: '38 plays', plays: 38 },
+  { name: 'ZUTOMAYO', detail: '38 plays', plays: 38 },
+  { name: 'Sakurazaka46', detail: 'On rotation right now', plays: 37 },
+  { name: 'Isekaijoucho', detail: 'Cover live stash', plays: 36 },
+  { name: 'Olivia Rodrigo', detail: '31 plays', plays: 31 },
 ]
 
 const RECENT_TRACKS = [
@@ -30,57 +30,6 @@ const LOVED_TRACKS = [
   { name: 'Bubble', artist: 'Yorushika' },
   { name: 'You Are Not Alone', artist: 'Michael Jackson' },
   { name: 'My Love', artist: 'Westlife' },
-]
-
-const CATEGORIES: ProfileCategoryMeta[] = [
-  {
-    id: 'overview',
-    label: 'Overview',
-    blurb: 'The whole grove at a glance.',
-    href: '/profile',
-    sourceUrl: 'https://github.com/GenZerg',
-    sourceLabel: 'GitHub',
-  },
-  {
-    id: 'anime',
-    label: 'Anime',
-    blurb: 'AniList deep cuts, favorites, and score peaks.',
-    href: '/profile/anime',
-    sourceUrl: 'https://anilist.co/user/GenZerg/',
-    sourceLabel: 'AniList',
-  },
-  {
-    id: 'films',
-    label: 'Films',
-    blurb: 'Letterboxd diary — recent watches and five-star nights.',
-    href: '/profile/films',
-    sourceUrl: 'https://letterboxd.com/genzerg/',
-    sourceLabel: 'Letterboxd',
-  },
-  {
-    id: 'music',
-    label: 'Music',
-    blurb: 'Last.fm pulse — rock, idol, and late-night JP indie.',
-    href: '/profile/music',
-    sourceUrl: 'https://www.last.fm/user/GenZerg',
-    sourceLabel: 'Last.fm',
-  },
-  {
-    id: 'games',
-    label: 'Games',
-    blurb: 'Steam roots since 2013 — long sessions, badge grind.',
-    href: '/profile/games',
-    sourceUrl: 'https://steamcommunity.com/id/GenZerG',
-    sourceLabel: 'Steam',
-  },
-  {
-    id: 'code',
-    label: 'Code',
-    blurb: 'Public builds and experiments from Pathumthani.',
-    href: '/profile/code',
-    sourceUrl: 'https://github.com/GenZerg',
-    sourceLabel: 'GitHub',
-  },
 ]
 
 function toMediaItem(entry: {
@@ -121,19 +70,87 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
     .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
     .slice(0, 12)
 
+  const animeCover = anilist?.favorites[0]?.cover
+    || anilist?.topRated[0]?.cover
+    || watching[0]?.cover
+    || null
+  const filmCover = topFilms[0]?.posterUrl || filmRows[0]?.posterUrl || null
+  const musicCover = anilist?.favorites.find((fav) => /rock|music/i.test(fav.title))?.cover
+    || anilist?.topRated.find((entry) => /bocchi|music/i.test(entry.title))?.cover
+    || animeCover
+  const gameCover = steam?.avatar || null
+  const codeCover = anilist?.banner || null
+
+  const categories: ProfileCategoryMeta[] = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      blurb: 'Numbers, favorites, and where everything lives.',
+      href: '/profile',
+      sourceUrl: 'https://github.com/GenZerg',
+      sourceLabel: 'GitHub',
+      cover: anilist?.banner || animeCover,
+    },
+    {
+      id: 'anime',
+      label: 'Anime',
+      blurb: `${anilist?.animeCount ?? '—'} titles. Mean ${anilist?.meanScore ?? '—'}. HxH stays favorite.`,
+      href: '/profile/anime',
+      sourceUrl: 'https://anilist.co/user/GenZerg/',
+      sourceLabel: 'AniList',
+      cover: animeCover,
+    },
+    {
+      id: 'films',
+      label: 'Films',
+      blurb: `${filmsLogged ?? '—'} logged on Letterboxd. Recent five-stars included.`,
+      href: '/profile/films',
+      sourceUrl: 'https://letterboxd.com/genzerg/',
+      sourceLabel: 'Letterboxd',
+      cover: filmCover,
+    },
+    {
+      id: 'music',
+      label: 'Music',
+      blurb: '42,024 scrobbles since Jun 2023. Rock, idol, JP indie.',
+      href: '/profile/music',
+      sourceUrl: 'https://www.last.fm/user/GenZerg',
+      sourceLabel: 'Last.fm',
+      cover: musicCover,
+    },
+    {
+      id: 'games',
+      label: 'Games',
+      blurb: `Steam GenZerG · level ${steam?.level ?? '—'} · since 2013.`,
+      href: '/profile/games',
+      sourceUrl: 'https://steamcommunity.com/id/GenZerG',
+      sourceLabel: 'Steam',
+      cover: gameCover,
+    },
+    {
+      id: 'code',
+      label: 'Code',
+      blurb: `${github?.publicRepos ?? 0} public repos from Pathumthani.`,
+      href: '/profile/code',
+      sourceUrl: 'https://github.com/GenZerg',
+      sourceLabel: 'GitHub',
+      cover: codeCover,
+    },
+  ]
+
   const highlights = [
     anilist
-      ? { label: 'Anime logged', value: String(anilist.animeCount), hint: `${anilist.daysWatched} days watched` }
+      ? { label: 'Anime', value: String(anilist.animeCount), hint: `${anilist.daysWatched} days watched` }
       : null,
     anilist
-      ? { label: 'Completed', value: String(anilist.completed), hint: `${anilist.current} currently watching` }
+      ? { label: 'Finished', value: String(anilist.completed), hint: `${anilist.current} watching now` }
       : null,
     filmsLogged != null
-      ? { label: 'Films logged', value: String(filmsLogged), hint: 'Letterboxd diary' }
+      ? { label: 'Films', value: String(filmsLogged), hint: 'Letterboxd' }
       : null,
-    { label: 'Scrobbles', value: '42k+', hint: '~37 per day since Jun 2023' },
+    { label: 'Scrobbles', value: '42,024', hint: '~37 / day' },
     steam?.level != null
-      ? { label: 'Steam level', value: String(steam.level), hint: steam.memberSince ? `Since ${steam.memberSince.match(/\d{4}/)?.[0]}` : 'GenZerG' }
+      ? { label: 'Steam lvl', value: String(steam.level), hint: `${steam.gamesOwned ?? '—'} games` }
       : null,
   ].filter(Boolean) as ProfileResponse['highlights']
 
@@ -148,13 +165,13 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
       id: 'letterboxd',
       label: 'Letterboxd',
       url: 'https://letterboxd.com/genzerg/',
-      detail: filmsLogged != null ? `${filmsLogged} films logged` : 'Film diary',
+      detail: filmsLogged != null ? `${filmsLogged} films` : 'Film diary',
     },
     {
       id: 'lastfm',
       label: 'Last.fm',
       url: 'https://www.last.fm/user/GenZerg',
-      detail: '42,024 scrobbles · since Jun 2023',
+      detail: '42,024 scrobbles',
     },
     {
       id: 'steam',
@@ -166,19 +183,19 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
       id: 'github',
       label: 'GitHub',
       url: github?.profileUrl || 'https://github.com/GenZerg',
-      detail: github ? `${github.publicRepos} public repos` : 'Builds in the open',
+      detail: github ? `${github.publicRepos} repos` : 'Code',
     },
   ]
 
   return {
     handle: HANDLE,
     location,
-    tagline: 'Thailand-rooted creator energy — anime deep cuts, film diaries, loud playlists, Steam nights, and code experiments.',
+    tagline: 'From Pathumthani: long anime lists, a fat Letterboxd diary, loud scrobbles, and a Steam account older than most Discord servers.',
     avatar: anilist?.avatar || steam?.avatar || null,
     banner: anilist?.banner || null,
     links,
     highlights,
-    categories: CATEGORIES,
+    categories,
     genres: anilist?.genres ?? [],
     favorites: anilist?.favorites ?? [],
     listeningFlavor: LISTENING_ARTISTS.map(({ name, detail }) => ({ name, detail })),
@@ -210,10 +227,10 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
     details: {
       anime: {
         stats: [
-          { label: 'Anime', value: String(anilist?.animeCount ?? 0) },
-          { label: 'Days watched', value: String(anilist?.daysWatched ?? 0) },
-          { label: 'Mean score', value: String(anilist?.meanScore ?? 0) },
-          { label: 'Completed', value: String(anilist?.completed ?? 0), hint: `${anilist?.planning ?? 0} planned` },
+          { label: 'Titles', value: String(anilist?.animeCount ?? 0) },
+          { label: 'Days', value: String(anilist?.daysWatched ?? 0) },
+          { label: 'Mean', value: String(anilist?.meanScore ?? 0) },
+          { label: 'Done', value: String(anilist?.completed ?? 0), hint: `${anilist?.planning ?? 0} planned` },
           { label: 'Watching', value: String(anilist?.current ?? 0), hint: `${anilist?.paused ?? 0} paused` },
           { label: 'Manga', value: String(anilist?.mangaCount ?? 0) },
         ],
@@ -224,17 +241,17 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
           meta: `${entry.score}/10`,
           score: entry.score,
         })),
-        watching: watching.slice(0, 18).map((entry) => toMediaItem({
+        watching: watching.slice(0, 24).map((entry) => toMediaItem({
           id: entry.id,
           title: entry.title,
           cover: entry.cover,
           url: entry.url,
           subtitle: entry.format || 'Watching',
           meta: entry.episodes
-            ? `Ep ${entry.progress}/${entry.episodes}`
+            ? `${entry.progress}/${entry.episodes}`
             : entry.progress > 0
               ? `Ep ${entry.progress}`
-              : 'In progress',
+              : 'Started',
         })),
         genres: anilist?.genres ?? [],
         formats: anilist?.formats ?? [],
@@ -245,17 +262,17 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
       },
       films: {
         stats: [
-          { label: 'Films logged', value: filmsLogged != null ? String(filmsLogged) : '—' },
-          { label: 'Recent batch', value: String(filmRows.length) },
-          { label: 'Five-star picks', value: String(topFilms.filter((film) => film.rating === 5).length) },
+          { label: 'Logged', value: filmsLogged != null ? String(filmsLogged) : '—' },
+          { label: 'Loaded', value: String(filmRows.length) },
+          { label: '5★ here', value: String(topFilms.filter((film) => film.rating === 5).length) },
         ],
-        recent: filmRows.slice(0, 18).map((film) => toMediaItem({
+        recent: filmRows.slice(0, 24).map((film) => toMediaItem({
           id: film.id,
           title: film.title,
           image: film.posterUrl,
           url: film.url,
-          subtitle: film.year ? String(film.year) : 'Letterboxd',
-          meta: film.rating != null ? `${film.rating}/5` : 'Unrated',
+          subtitle: film.year ? String(film.year) : 'Film',
+          meta: film.rating != null ? `${film.rating}/5` : undefined,
           score: film.rating,
         })),
         topRated: topFilms.map((film) => toMediaItem({
@@ -263,7 +280,7 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
           title: film.title,
           image: film.posterUrl,
           url: film.url,
-          subtitle: film.year ? String(film.year) : 'Letterboxd',
+          subtitle: film.year ? String(film.year) : 'Film',
           meta: `${film.rating}/5`,
           score: film.rating,
         })),
@@ -285,21 +302,21 @@ export default defineEventHandler(async (): Promise<ProfileResponse> => {
           { label: 'Badges', value: steam?.badges != null ? String(steam.badges) : '—' },
           { label: 'Achievements', value: steam?.achievements != null ? steam.achievements.toLocaleString('en-US') : '—' },
           { label: 'Friends', value: steam?.friends != null ? String(steam.friends) : '—' },
-          { label: 'Member since', value: steam?.memberSince?.match(/\d{4}/)?.[0] || '2013' },
+          { label: 'Since', value: steam?.memberSince?.match(/\d{4}/)?.[0] || '2013' },
         ],
         recentGames: steam?.recentGames?.length
           ? steam.recentGames
           : ['PRAGMATA', 'Forza Horizon 6', 'Insaniquarium! Deluxe'],
         notes: [
-          'Steam identity GenZerG — public profile from Thailand.',
-          'Long-running account with badge collecting and achievement hunting energy.',
+          'Public Steam profile: GenZerG, Thailand.',
+          'Badge collecting + achievement hunting since February 2013.',
         ],
       },
       code: {
         stats: [
           { label: 'Repos', value: String(github?.publicRepos ?? 0) },
           { label: 'Followers', value: String(github?.followers ?? 0) },
-          { label: 'Home', value: github?.location || 'Pathumthani, Thailand' },
+          { label: 'Base', value: github?.location || 'Pathumthani' },
         ],
         repos: github?.repos ?? [],
       },

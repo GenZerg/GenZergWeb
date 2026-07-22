@@ -53,6 +53,7 @@ export type ProfileCategoryMeta = {
   href: string
   sourceUrl: string
   sourceLabel: string
+  cover: string | null
 }
 
 export type ProfileAnimeCategory = {
