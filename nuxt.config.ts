@@ -11,7 +11,15 @@ export default defineNuxtConfig({
       lastfmUser: 'GenZerg',
       anilistUser: 'GenZerg',
       letterboxdUser: 'genzerg',
+      steamUser: 'GenZerG',
+      githubUser: 'GenZerg',
     },
+  },
+
+  routeRules: {
+    '/about': { redirect: '/' },
+    '/profile': { redirect: '/' },
+    '/profile/**': { redirect: '/' },
   },
 
   nitro: {
@@ -24,10 +32,4 @@ export default defineNuxtConfig({
   },
 
   modules: ['nitro-cloudflare-dev'],
-
-  vite: {
-    optimizeDeps: {
-      include: ['three'],
-    },
-  },
 })

@@ -20,6 +20,12 @@ function parseTitleYear(rawName: string): { title: string, year: number | null }
   return { title: match[1]!.trim(), year: Number(match[2]) }
 }
 
+function letterboxdPosterUrl(filmId: string, slug: string): string | null {
+  if (!/^\d+$/.test(filmId) || !slug) return null
+  const path = filmId.split('').join('/')
+  return `https://a.ltrbxd.com/resized/film-poster/${path}/${filmId}-${slug}-0-600-0-900-crop.jpg`
+}
+
 function parseFilmsFromHtml(html: string): LetterboxdFilm[] {
   const posterRe =
     /<div class="react-component"[^>]*data-component-class="LazyPoster"[^>]*>/g
@@ -38,15 +44,16 @@ function parseFilmsFromHtml(html: string): LetterboxdFilm[] {
     const rated = chunk.match(/rated-(\d+)/)?.[1]
     const { title, year } = parseTitleYear(name)
     const rating = rated ? Number(rated) / 2 : null
+    const id = uid || slug
 
     films.push({
-      id: uid || slug,
+      id,
       title,
       year,
       slug,
       url: link.startsWith('http') ? link : `https://letterboxd.com${link}`,
       rating,
-      posterUrl: null,
+      posterUrl: uid ? letterboxdPosterUrl(uid, slug) : null,
     })
   }
 
@@ -65,6 +72,24 @@ async function fetchFilmsPage(page: number): Promise<string> {
     },
     responseType: 'text',
   })
+}
+
+export async function fetchLetterboxdFilmCount(): Promise<number | null> {
+  try {
+    const html = await $fetch<string>(`https://letterboxd.com/${LETTERBOXD_USER}/`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; GenZergWeb/1.0; +https://github.com/genzerg)',
+        Accept: 'text/html,application/xhtml+xml',
+      },
+      responseType: 'text',
+    })
+    const match = html.match(/class="value">\s*([0-9,]+)\s*</)
+    if (!match?.[1]) return null
+    return Number(match[1].replace(/,/g, ''))
+  }
+  catch {
+    return null
+  }
 }
 
 export async function fetchLetterboxdFilms() {
@@ -102,6 +127,7 @@ export async function fetchLetterboxdFilms() {
   }
 
   const withPosters = await attachTmdbPosters(films)
+  const hasPosters = withPosters.some((film) => Boolean(film.posterUrl))
 
   return {
     user: 'GenZerg',
@@ -110,6 +136,6 @@ export async function fetchLetterboxdFilms() {
     count: withPosters.length,
     films: withPosters,
     source: 'letterboxd-html' as const,
-    posters: Boolean(useRuntimeConfig().tmdbApiKey),
+    posters: hasPosters,
   }
 }

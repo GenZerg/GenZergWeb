@@ -56,19 +56,15 @@ That builds the app and deploys it to a `*.workers.dev` URL. You can attach a cu
 | `bun run deploy` | Build + deploy with Wrangler |
 | `bun run cf-typegen` | Regenerate `worker-configuration.d.ts` |
 
-## Interactive canopy
+## Pages
 
-The home page is a full-viewport Three.js showcase:
+- `/` — single-page experience (hero, now rail, profile deck)
+- `/features` — product-style map of every feature on one scroll (Harntung-like IA)
 
-- **Anime** panels from AniList (`/api/watching`)
-- **Film** panels from Letterboxd (`/api/films`) + TMDB posters
-- **Music** panels + scrobble bars from Last.fm (`/api/music`)
-
-Move to look around, click a panel, and use zone filters in the HUD.
+Old `/about` and `/profile/*` redirect home.
 
 ## Stack
 
 - Bun · Nuxt 4 · Cloudflare Workers
-- Three.js interactive canopy showcase
-- AniList GraphQL · Letterboxd · Last.fm · TMDB posters
-- Env keys: `NUXT_LASTFM_API_KEY`, `NUXT_TMDB_API_KEY` (see `.env.example`)
+- CSS canopy showcase (no Three.js)
+- AniList GraphQL · Letterboxd · Last.fm · Steam · GitHub
