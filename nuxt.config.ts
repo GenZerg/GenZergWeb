@@ -16,6 +16,12 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '/about': { redirect: '/' },
+    '/profile': { redirect: '/' },
+    '/profile/**': { redirect: '/' },
+  },
+
   nitro: {
     preset: 'cloudflare_module',
 

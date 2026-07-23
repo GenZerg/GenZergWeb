@@ -18,6 +18,12 @@ const reducedMotion = ref(false)
 
 onMounted(() => {
   reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const hash = window.location.hash.replace(/^#/, '')
+  if (hash) {
+    nextTick(() => {
+      document.getElementById(hash)?.scrollIntoView({ behavior: reducedMotion.value ? 'auto' : 'smooth' })
+    })
+  }
 })
 
 const { data: profile } = await useFetch<ProfileResponse>('/api/profile', {
@@ -138,8 +144,8 @@ const counts = computed(() => ({
       <div class="hero__frame">
         <header class="hero__top">
           <nav class="hero__nav" aria-label="Primary">
-            <NuxtLink to="/profile">Profile</NuxtLink>
-            <NuxtLink to="/about">Story</NuxtLink>
+            <a href="#exhibit">Now</a>
+            <a href="#profile">Profile</a>
             <a href="https://anilist.co/user/GenZerg/" target="_blank" rel="noopener noreferrer">AniList</a>
             <a href="https://letterboxd.com/genzerg/" target="_blank" rel="noopener noreferrer">Films</a>
             <a href="https://www.last.fm/user/GenZerg" target="_blank" rel="noopener noreferrer">Last.fm</a>
@@ -155,7 +161,7 @@ const counts = computed(() => ({
           </p>
           <div class="hero__cta">
             <a class="cta cta--primary" href="#exhibit">See what’s on</a>
-            <NuxtLink class="cta cta--ghost" to="/profile">Open profile</NuxtLink>
+            <a class="cta cta--ghost" href="#profile">Profile</a>
           </div>
         </div>
       </div>
@@ -169,7 +175,7 @@ const counts = computed(() => ({
       :counts="counts"
     />
 
-    <ProfileRoots :profile="profile" />
+    <ProfileDeck :profile="profile" />
   </div>
 </template>
 

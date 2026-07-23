@@ -56,21 +56,21 @@ That builds the app and deploys it to a `*.workers.dev` URL. You can attach a cu
 | `bun run deploy` | Build + deploy with Wrangler |
 | `bun run cf-typegen` | Regenerate `worker-configuration.d.ts` |
 
-## Canopy showcase
+## Single page
 
-The home page is a full-viewport canopy experience (CSS + pixel art — no WebGL):
+One page only (`/`):
 
-- **Hero** — full-bleed forest canopy with light, dust, and parallax
-- **Anime** from AniList (`/api/watching`)
-- **Film** from Letterboxd (`/api/films`) + TMDB posters
-- **Music** from Last.fm (`/api/music`) with weekly/monthly pulse
-- **Roots** + **Profile** (`/profile`, `/profile/anime|films|music|games|code`) from `/api/profile`
+- **Hero** — full-bleed pixel canopy
+- **Now** (`#exhibit`) — anime / films / music currently in rotation
+- **Profile** (`#profile`) — stats, favorites, Steam, GitHub by in-page tabs
 
-Scroll into the grove, filter by zone, and open a panel for the source link.
+Old `/about` and `/profile/*` routes redirect home.
+
+Data: AniList · Letterboxd · Last.fm · Steam · GitHub via `/api/*`.
+Env keys: `NUXT_LASTFM_API_KEY`, `NUXT_TMDB_API_KEY` (see `.env.example`).
 
 ## Stack
 
 - Bun · Nuxt 4 · Cloudflare Workers
 - CSS canopy showcase (no Three.js)
-- AniList GraphQL · Letterboxd · Last.fm · TMDB posters
-- Env keys: `NUXT_LASTFM_API_KEY`, `NUXT_TMDB_API_KEY` (see `.env.example`)
+- AniList GraphQL · Letterboxd · Last.fm · Steam · GitHub
