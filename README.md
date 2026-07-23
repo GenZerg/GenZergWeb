@@ -56,18 +56,12 @@ That builds the app and deploys it to a `*.workers.dev` URL. You can attach a cu
 | `bun run deploy` | Build + deploy with Wrangler |
 | `bun run cf-typegen` | Regenerate `worker-configuration.d.ts` |
 
-## Single page
+## Pages
 
-One page only (`/`):
+- `/` — single-page experience (hero, now rail, profile deck)
+- `/features` — product-style map of every feature on one scroll (Harntung-like IA)
 
-- **Hero** — full-bleed pixel canopy
-- **Now** (`#exhibit`) — anime / films / music currently in rotation
-- **Profile** (`#profile`) — stats, favorites, Steam, GitHub by in-page tabs
-
-Old `/about` and `/profile/*` routes redirect home.
-
-Data: AniList · Letterboxd · Last.fm · Steam · GitHub via `/api/*`.
-Env keys: `NUXT_LASTFM_API_KEY`, `NUXT_TMDB_API_KEY` (see `.env.example`).
+Old `/about` and `/profile/*` redirect home.
 
 ## Stack
 
